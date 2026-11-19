@@ -1,0 +1,58 @@
+name: build-x64
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-x64-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: chromium
+          path: dist
+
+      - name: List artifacts
+        run: ls -la dist
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: '148.0.7778.215-fp1'
+        run: |
+          set -euo pipefail
+          cd dist
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "Release $TAG already exists; uploading assets."
+            gh release upload "$TAG" ./* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" ./* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Fingerprint Chromium 148.0.7778.215 (Windows x64)" \
+              --notes "Automated build of fingerprint-chromium 148.0.7778.215 for Windows x64.
+
+          Based on:
+          - ungoogled-chromium 148.0.7778.215-1 (Windows port 148.0.7778.215-1.1)
+          - fingerprint-chromium patchset (branch 148.0.7778.215)
+
+          Assets:
+          - fingerprint-chromium_148.0.7778.215-1.1_installer_x64.exe - standard Chromium-style mini installer
+          - fingerprint-chromium_148.0.7778.215-1.1_windows_x64.zip - portable archive (chromedriver included)
+
+          The build is produced by chained CI stages on GitHub Actions (no local build required)."
+          fi

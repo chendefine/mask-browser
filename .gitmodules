@@ -1,0 +1,4 @@
+[submodule "ungoogled-chromium"]
+	path = ungoogled-chromium
+	url = https://github.com/chendefine/fingerprint-chromium.git
+	branch = 148.0.7778.215
