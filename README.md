@@ -32,7 +32,7 @@ gh workflow run build-x64.yml --ref main
    下一个 stage job 下载后继续编译,直到完成(上游经验约 8–12 个 stage / 40–48 小时)。
 4. 构建成功后 `package.py` 产出:
    - `fingerprint-chromium_148.0.7778.215-1.1_installer_x64.exe`(mini_installer 安装包)
-   - `fingerprint-chromium_148.0.7778.215-1.1_windows_x64.zip`(便携版,含 chromedriver)
+   - `fingerprint-chromium_148.0.7778.215-1.1_windows_x64.zip`(便携版 zip)
 5. `release` job 下载产物并发布到 GitHub Release(`148.0.7778.215-fp1`)。
 
 ## 相对上游的改动
